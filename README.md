@@ -1,4 +1,4 @@
-# SharePoint-to-Azure-Backup
+# Easy SharePoint to Azure Backup
 A low-code solution to let end-users backup SharePoint content to Azure storage
 
 [This is the first part of the solution that does the heavy lifting of backing up SharePoint files to Azure blob storage. In the second part this solution will be extended with a SharePoint Site Design/Site Script that will automatically add a newly created Microsoft Team/SharePoint Site to the backup process. Also a service bus will then be added to the architecture]
