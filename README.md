@@ -17,7 +17,7 @@ Now create a new storage account in Azure. Create a new Blob storage container (
 
 The next step is to import the first logic app.
 
-Followed by configuring a Sitescript / Sitedesign
+Followed by configuring a Sitescript / Sitedesign -> Add-SPOSiteDesign -Title "Azure Backup" -Description "Add site to daily Azure Backup" -SiteScripts ab81b263-1f89-4c3d-9a2e-0d7479729787 -WebTemplate 0
 
 https://docs.microsoft.com/en-us/sharepoint/dev/declarative-customization/site-design-trigger-flow-tutorial#create-the-site-design
 
