@@ -1,0 +1,14 @@
+{
+   "$schema": "schema.json",
+   "actions": [
+     {
+       "verb": "triggerFlow",
+       "url": "[paste the workflow trigger URL here]",
+       "name": "Add site to Azure Back-Up",
+       "parameters": {
+         "event": "AzureBackup",
+         "product": "SharePoint Online"
+       }
+     }
+   ]
+ }
