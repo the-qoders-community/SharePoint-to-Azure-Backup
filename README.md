@@ -17,9 +17,9 @@ Now create a new storage account in Azure. Create a new blob storage container (
 
 The next step is to import the first logic app: 'QodersAddSiteToBackUp'. This is a logic app with an HTTP endpoint. The endpoint is called by the SharePoint site design/site script. The template is saved within this repository with title 'QodersAddSiteToBackUp.json' It is a ARM template and you can import it in the same way as importing a Power Automate template. Navigate to https://docs.microsoft.com/en-us/azure/logic-apps/export-from-microsoft-flow-logic-app-template#deploy-template-by-using-the-azure-portal and follow step 1-9. At step 4 you should upload 'QodersAddSiteToBackUp.json'.
 
-In step 6 use the storage account name, and key1 or key2 that you have created and saved previously.
+In step 7 use the storage account name, and key1 or key2 that you have created and saved previously in the yellow marked input fields.
 
-
+<img src="https://github.com/the-qoders-community/SharePoint-to-Azure-Backup/blob/master/Images/QodersSharePointBackup.PNG" width="600" >
 
 Followed by configuring a Sitescript / Sitedesign -> Add-SPOSiteDesign -Title "Azure Backup" -Description "Add site to daily Azure Backup" -SiteScripts ab81b263-1f89-4c3d-9a2e-0d7479729787 -WebTemplate 0
 
@@ -27,9 +27,9 @@ https://docs.microsoft.com/en-us/sharepoint/dev/declarative-customization/site-d
 
 Next import the logic app. It is saved within this repository with title 'QodersSharePointBackup.json'. It is a ARM template and you can import it in the same way as importing a Power Automate template. Navigate to https://docs.microsoft.com/en-us/azure/logic-apps/export-from-microsoft-flow-logic-app-template#deploy-template-by-using-the-azure-portal and follow step 1-9. At step 4 you should upload 'QodersSharePointBackup.json'.
 
-In step 6 use the storage account and key1 or key2 that you have created and saved previously.
+In step 7 use the storage account and key1 or key2 that you have created and saved previously.
 
-<img src="https://github.com/Robert1976/SharePointBackup/blob/master/images/import.png" width="600" >
+<img src="https://github.com/the-qoders-community/SharePoint-to-Azure-Backup/blob/master/images/QodersSharePointBackup.png" width="600" >
 
 Finally edit you newly created Logic App. Make sure that variables 'TenantID', 'ClientID' and 'ClientSecret' are set with the values from your AAD application. Also make sure that the 'GetRows' action references your storage table and the 'Create blob' action (rather deep in the Logic App!) Folder path is set to your blob storage.
 
