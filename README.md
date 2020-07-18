@@ -7,15 +7,19 @@ Simple Azure serverless SharePoint backup uses a logic app and storage account t
 
 # Installation
 
-Start by creating an Azure Active Directory application. Follow the steps in this blog  https://www.lee-ford.co.uk/using-flow-with-graph-api/ and make sure your application has 'Sites.ReadWrite.All' Graph Permissions.
+Start by creating an Azure Active Directory application. Follow the steps in this blog  https://www.lee-ford.co.uk/using-flow-with-graph-api/ and make sure your application (so not delegated!) has 'Sites.ReadWrite.All' Graph Permissions.
 
 <img src="https://github.com/Robert1976/SharePointBackup/blob/master/images/graph.PNG" width="600" >
 
 Make sure you save your TenantID, Your applications ClientID and your applications ClientSecret. You need them further on.
 
-Now create a new storage account in Azure. Create a new Blob storage container (this container will hold the SharePoint files) and a new Table. Make sure you remember the name of your storage account and write down one of your access keys (key1 or key2). Your blob should be a private blob!
+Now create a new storage account in Azure. Create a new blob storage container (this container will hold the SharePoint files) and a new table (this will hold references to the sites that will be backed up) and a new Queue. I named my blob 'sharepointfiles', my table 'sharepointsites' and my queue 'sharepointazurebackup'. Make sure you remember the name of your storage account and copy one of your access keys (key1 or key2) to a temporary note. Your blob should be a private blob!
 
-The next step is to import the first logic app.
+The next step is to import the first logic app: 'QodersAddSiteToBackUp'. This is a logic app with an HTTP endpoint. The endpoint is called by the SharePoint site design/site script. The template is saved within this repository with title 'QodersAddSiteToBackUp.json' It is a ARM template and you can import it in the same way as importing a Power Automate template. Navigate to https://docs.microsoft.com/en-us/azure/logic-apps/export-from-microsoft-flow-logic-app-template#deploy-template-by-using-the-azure-portal and follow step 1-9. At step 4 you should upload 'QodersAddSiteToBackUp.json'.
+
+In step 6 use the storage account name, and key1 or key2 that you have created and saved previously.
+
+
 
 Followed by configuring a Sitescript / Sitedesign -> Add-SPOSiteDesign -Title "Azure Backup" -Description "Add site to daily Azure Backup" -SiteScripts ab81b263-1f89-4c3d-9a2e-0d7479729787 -WebTemplate 0
 
