@@ -29,9 +29,11 @@ Followed by changing the placeholder TENANTNAME in action "Tenantname" by your o
 
 You can now configure the Sitescript and Sitedesign. This is very well descibed here: https://docs.microsoft.com/en-us/sharepoint/dev/declarative-customization/site-design-trigger-flow-tutorial#create-the-site-design.
 
-You can use the example JSON. Just make sure you replace the [paste the workflow trigger URL here]-part with your own HTTP-endpoint. Also, replace the 'Add-SPOSiteDesign' command with: Add-SPOSiteDesign -Title "Azure Backup" -Description "Add site to daily Azure Backup" -SiteScripts -your site script id- -WebTemplate 0
+You can use the example JSON. Just make sure you replace the [paste the workflow trigger URL here]-part with your own HTTP-endpoint. Also, replace the 'Add-SPOSiteDesign' command with: 
 
-The '-WebTemplate 0' part makes sure that your Site Design can only be applied tpo existing sites.
+Add-SPOSiteDesign -Title "Azure Backup" -Description "Add site to daily Azure Backup" -SiteScripts -script id- -WebTemplate 0
+
+The '-WebTemplate 0' part makes sure that your Site Design can only be applied to existing sites.
 
 
 
