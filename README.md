@@ -1,7 +1,5 @@
-# Easy SharePoint to Azure Backup
+# Simple SharePoint to Azure Backup
 A low-code solution to let end-users backup SharePoint content to Azure storage
-
-[This is the first part of the solution that does the heavy lifting of backing up SharePoint files to Azure blob storage. In the second part this solution will be extended with a SharePoint Site Design/Site Script that will automatically add a newly created Microsoft Team/SharePoint Site to the backup process. Also a service bus will then be added to the architecture]
 
 Simple Azure serverless SharePoint backup uses a logic app and storage account to backup SharePoint files. The solution only backups files that are stored in the Shared Documents library of your site (which is ideal if you use Teams). The solution uses the 'Delta' method of the Graph files api. Only newly added or edited files are updated (for more information see: https://docs.microsoft.com/en-us/graph/api/driveitem-delta?view=graph-rest-1.0&tabs=http).
 
@@ -47,8 +45,16 @@ In step 7 use the storage account and key1 or key2 that you have created and sav
 
 Finally edit you newly created Logic App. Make sure that variables 'TenantID', 'ClientID' and 'ClientSecret' are set with the values from your AAD application. Also make sure that the 'GetRows' action references your storage table and the 'Create blob' action (rather deep in the Logic App!) Folder path is set to your blob storage.
 
-# Some ideas on doing a 'Restore' on backed-up sites
+# Tested scenarios
 
-Blabla
+We tested the performance of the solution with a back-up of a SharePoint site with 2 GB of data in 4500 Office documents. In reality there will be sites with a lot more documents. But because the solution uses the delta method of the Graph files API, if you add your site relatively early in the site-lifcycle to the back-up process, it will only have to backup the additions that are made each day. Making the impact of the daily back-up job minimal.
+
+# Some ideas on doing a 'Restore' on a back-up site in Azure Blob
+
+----
+
+
+
+
 
 
