@@ -13,7 +13,7 @@ Start by creating an Azure Active Directory application. Follow the steps in thi
 
 Make sure you save your TenantID, your applications ClientID and your applications ClientSecret to a temporary notepad. You need them further on.
 
-Now create a new storage account in Azure. Create a new blob storage container (this container will hold the SharePoint files) and a new table (this will hold references to the sites that will be backed up) and a new Queue. I named my blob 'sharepointfiles', my table 'sharepointsites' and my queue 'sharepointazurebackup'. Make sure you remember the name of your storage account and copy one of your access keys (key1 or key2) to a temporary note. Your blob should be a private blob!
+Now create a new storage account in Azure. Create a new blob storage container (this container will hold the SharePoint files) and a new table (this will hold references to the sites that will be backed up) and a new queue. I named my blob 'sharepointfiles', my table 'sharepointsites' and my queue 'sharepointazurebackup'. Make sure you remember the name of your storage account and copy one of your access keys (key1 or key2) to a temporary note. Your blob should be a private blob!
 
 The next step is to import the first logic app: 'QodersAddSiteToBackUp'. This is a logic app with an HTTP endpoint. The endpoint is called by the SharePoint site design/site script. The template is saved within this repository with title 'QodersAddSiteToBackUp.json' in folder 'Resources'. It is a ARM template and you can import it in the same way as importing a Power Automate template. Navigate to https://docs.microsoft.com/en-us/azure/logic-apps/export-from-microsoft-flow-logic-app-template#deploy-template-by-using-the-azure-portal and follow step 1-9. At step 4 you should upload 'QodersAddSiteToBackUp.json'.
 
@@ -35,13 +35,15 @@ Add-SPOSiteDesign -Title "Azure Backup" -Description "Add site to daily Azure Ba
 
 The '-WebTemplate 0' part makes sure that your Site Design can only be applied to existing sites.
 
+Now import the second logic app. It is named 'QodersScheduledBus.json'. Just follow the same steps as mentioned above and again, in step 7, use the storage account name, and key1 or key2 that you have created and saved previously in the yellow marked input fields. This logic app uses the Azure storage queue.
 
+<img src="https://github.com/the-qoders-community/SharePoint-to-Azure-Backup/blob/master/Images/QodersScheduledBus.PNG" width="600" >
 
-Next import the logic app. It is saved within this repository with title 'QodersSharePointBackup.json'. It is a ARM template and you can import it in the same way as importing a Power Automate template. Navigate to https://docs.microsoft.com/en-us/azure/logic-apps/export-from-microsoft-flow-logic-app-template#deploy-template-by-using-the-azure-portal and follow step 1-9. At step 4 you should upload 'QodersSharePointBackup.json'.
+Finnaly import the third logic app. This logic app will pick up messages from the queue and backup the files from SharePoint to Azure. Again follow step 1-9. At step 4 you should upload 'QodersSharePointBackup.json'.
 
 In step 7 use the storage account and key1 or key2 that you have created and saved previously.
 
-<img src="https://github.com/the-qoders-community/SharePoint-to-Azure-Backup/blob/master/images/QodersSharePointBackup.png" width="600" >
+
 
 Finally edit you newly created Logic App. Make sure that variables 'TenantID', 'ClientID' and 'ClientSecret' are set with the values from your AAD application. Also make sure that the 'GetRows' action references your storage table and the 'Create blob' action (rather deep in the Logic App!) Folder path is set to your blob storage.
 
