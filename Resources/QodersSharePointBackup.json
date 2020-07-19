@@ -1,0 +1,690 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "azuretables_1_Connection_Name": {
+      "type": "string",
+      "defaultValue": "azuretables"
+    },
+    "azuretables_1_Connection_DisplayName": {
+      "type": "string",
+      "defaultValue": "qodersfiles"
+    },
+    "azuretables_1_storageaccount": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of your storage account"
+      },
+      "defaultValue": "qodersfiles"
+    },
+    "azuretables_1_sharedkey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The shared storage key of your storage account"
+      }
+    },
+    "azurequeues_1_Connection_Name": {
+      "type": "string",
+      "defaultValue": "azurequeues"
+    },
+    "azurequeues_1_Connection_DisplayName": {
+      "type": "string",
+      "defaultValue": "BackUpQueue"
+    },
+    "azurequeues_1_storageaccount": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of your storage account"
+      },
+      "defaultValue": "qodersfiles"
+    },
+    "azurequeues_1_sharedkey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The shared storage key of your storage account"
+      }
+    },
+    "azureblob_1_Connection_Name": {
+      "type": "string",
+      "defaultValue": "azureblob-1"
+    },
+    "azureblob_1_Connection_DisplayName": {
+      "type": "string",
+      "defaultValue": "qodersfiles"
+    },
+    "azureblob_1_accountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the storage account the connector should use."
+      },
+      "defaultValue": "qodersfiles"
+    },
+    "azureblob_1_accessKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Specify a valid primary/secondary storage account access key."
+      }
+    },
+    "LogicAppLocation": {
+      "type": "string",
+      "minLength": 1,
+      "allowedValues": [
+        "[resourceGroup().location]",
+        "eastasia",
+        "southeastasia",
+        "centralus",
+        "eastus",
+        "eastus2",
+        "westus",
+        "northcentralus",
+        "southcentralus",
+        "northeurope",
+        "westeurope",
+        "japanwest",
+        "japaneast",
+        "brazilsouth",
+        "australiaeast",
+        "australiasoutheast",
+        "southindia",
+        "centralindia",
+        "westindia",
+        "canadacentral",
+        "canadaeast",
+        "uksouth",
+        "ukwest",
+        "westcentralus",
+        "westus2",
+        "koreacentral",
+        "koreasouth",
+        "francecentral",
+        "francesouth",
+        "uaecentral",
+        "southafricanorth",
+        "southafricawest"
+      ],
+      "defaultValue": "westeurope"
+    },
+    "LogicAppName": {
+      "type": "string",
+      "minLength": 1,
+      "defaultValue": "QodersSharePointBackup"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "properties": {
+        "state": "Enabled",
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "actions": {
+            "AllFileMetadata": {
+              "type": "Join",
+              "inputs": {
+                "from": "@variables('FileMetadata')",
+                "joinWith": ","
+              },
+              "runAfter": {
+                "Do_Until_No_NextLink": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "BackUpSite": {
+              "type": "ParseJson",
+              "inputs": {
+                "content": "@triggerBody()?['MessageText']",
+                "schema": {
+                  "properties": {
+                    "DeltaLink": {
+                      "type": "string"
+                    },
+                    "PartitionKey": {
+                      "type": "string"
+                    },
+                    "RowKey": {
+                      "type": "string"
+                    },
+                    "SiteUrl": {
+                      "type": "string"
+                    },
+                    "Timestamp": {
+                      "type": "string"
+                    },
+                    "odata.etag": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              },
+              "runAfter": {
+                "Delete_message": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "ClientID": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "ClientID",
+                    "type": "string",
+                    "value": "ClientID"
+                  }
+                ]
+              },
+              "runAfter": {
+                "TenantID": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "ClientSecret": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "ClientSecret",
+                    "type": "string",
+                    "value": "ClientSecret"
+                  }
+                ]
+              },
+              "runAfter": {
+                "ClientID": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Create_metadata_file": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['azureblob_1']['connectionId']"
+                  }
+                },
+                "method": "post",
+                "body": "{ @{body('AllFileMetadata')} }",
+                "path": "/datasets/default/files",
+                "queries": {
+                  "folderPath": "/sharepointfiles",
+                  "name": "@{body('BackUpSite')?['SiteUrl']}/@{formatDateTime(utcNow(),'yyyy-MM-dd')}/metadata.json",
+                  "queryParametersSingleEncoded": true
+                }
+              },
+              "runAfter": {
+                "AllFileMetadata": [
+                  "Succeeded"
+                ]
+              },
+              "runtimeConfiguration": {
+                "contentTransfer": {
+                  "transferMode": "Chunked"
+                }
+              }
+            },
+            "Delete_message": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['azurequeues']['connectionId']"
+                  }
+                },
+                "method": "delete",
+                "path": "/@{encodeURIComponent('sharepointazurebackup')}/messages/@{encodeURIComponent(triggerBody()?['MessageId'])}",
+                "queries": {
+                  "popreceipt": "@triggerBody()?['PopReceipt']"
+                }
+              },
+              "runAfter": {}
+            },
+            "DeltaLink": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "DeltaLink",
+                    "type": "string",
+                    "value": "@body('BackUpSite')?['DeltaLink']"
+                  }
+                ]
+              },
+              "runAfter": {
+                "Initialize_DeltaLinkSave": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Do_Until_No_NextLink": {
+              "type": "Until",
+              "expression": "@equals(variables('DeltaLink'), 'none')",
+              "limit": {
+                "count": 60,
+                "timeout": "PT1H"
+              },
+              "actions": {
+                "For_each": {
+                  "type": "Foreach",
+                  "foreach": "@body('Request_Drive_Changes')?['value']",
+                  "actions": {
+                    "If_not_deleted": {
+                      "type": "If",
+                      "expression": {
+                        "and": [
+                          {
+                            "equals": [
+                              "@empty(items('For_each')?['deleted'])",
+                              "@true"
+                            ]
+                          }
+                        ]
+                      },
+                      "actions": {
+                        "DriveItem": {
+                          "type": "Http",
+                          "inputs": {
+                            "method": "GET",
+                            "uri": "https://graph.microsoft.com/v1.0/sites/@{body('BackUpSite')?['RowKey']}/drive/items/@{outputs('DriveItemId')}",
+                            "authentication": {
+                              "audience": "https://graph.microsoft.com",
+                              "clientId": "@variables('ClientID')",
+                              "secret": "@variables('ClientSecret')",
+                              "tenant": "@variables('TenantID')",
+                              "type": "ActiveDirectoryOAuth"
+                            }
+                          },
+                          "runAfter": {
+                            "DriveItemId": [
+                              "Succeeded"
+                            ]
+                          }
+                        },
+                        "DriveItemId": {
+                          "type": "Compose",
+                          "inputs": "@items('For_each')?['id']",
+                          "runAfter": {}
+                        },
+                        "Make_sure_there_is_a_download_Url": {
+                          "type": "If",
+                          "expression": {
+                            "and": [
+                              {
+                                "equals": [
+                                  "@empty(body('DriveItem')?['@microsoft.graph.downloadUrl'])",
+                                  "@false"
+                                ]
+                              }
+                            ]
+                          },
+                          "actions": {
+                            "Append_to_array_variable": {
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "FileMetadata",
+                                "value": {
+                                  "createdByDisplayName": "@{body('DriveItem')['createdBy']['user']['displayName']}",
+                                  "createdDateTime": "@{body('DriveItem')?['createdDateTime']}",
+                                  "fileName": "@{body('DriveItem')?['name']}",
+                                  "filePath": "@{body('DriveItem')?['parentReference']?['path']}/@{body('DriveItem')?['name']}",
+                                  "lastModifiedByDisplayName": "@{body('DriveItem')?['lastModifiedBy']?['user']?['displayName']}",
+                                  "lastModifiedDateTime": "@{body('DriveItem')?['lastModifiedDateTime']}"
+                                }
+                              },
+                              "runAfter": {
+                                "Create_blob": [
+                                  "Succeeded"
+                                ]
+                              }
+                            },
+                            "Create_blob": {
+                              "type": "ApiConnection",
+                              "inputs": {
+                                "host": {
+                                  "connection": {
+                                    "name": "@parameters('$connections')['azureblob_1']['connectionId']"
+                                  }
+                                },
+                                "method": "post",
+                                "body": "@body('FileContent')",
+                                "headers": {
+                                  "Name": "@body('DriveItem')?['name']"
+                                },
+                                "path": "/datasets/default/files",
+                                "queries": {
+                                  "folderPath": "/sharepointfiles",
+                                  "name": "@{body('BackUpSite')?['SiteUrl']}@{body('DriveItem')?['parentReference']?['path']}/@{body('DriveItem')?['name']}",
+                                  "queryParametersSingleEncoded": true
+                                }
+                              },
+                              "runAfter": {
+                                "FileContent": [
+                                  "Succeeded"
+                                ]
+                              },
+                              "runtimeConfiguration": {
+                                "contentTransfer": {
+                                  "transferMode": "Chunked"
+                                }
+                              }
+                            },
+                            "FileContent": {
+                              "type": "Http",
+                              "inputs": {
+                                "method": "GET",
+                                "uri": "@{body('DriveItem')?['@microsoft.graph.downloadUrl']}"
+                              },
+                              "runAfter": {},
+                              "runtimeConfiguration": {
+                                "contentTransfer": {
+                                  "transferMode": "Chunked"
+                                }
+                              }
+                            }
+                          },
+                          "runAfter": {
+                            "DriveItem": [
+                              "Succeeded"
+                            ]
+                          }
+                        }
+                      },
+                      "runAfter": {}
+                    }
+                  },
+                  "runAfter": {
+                    "Set_DeltaLinkSave_if_available": [
+                      "Succeeded"
+                    ]
+                  },
+                  "runtimeConfiguration": {
+                    "concurrency": {
+                      "repetitions": 20
+                    }
+                  }
+                },
+                "Request_Drive_Changes": {
+                  "type": "Http",
+                  "inputs": {
+                    "method": "GET",
+                    "uri": "@variables('DeltaLink')",
+                    "authentication": {
+                      "audience": "https://graph.microsoft.com",
+                      "clientId": "@variables('ClientID')",
+                      "secret": "@variables('ClientSecret')",
+                      "tenant": "@variables('TenantID')",
+                      "type": "ActiveDirectoryOAuth"
+                    }
+                  },
+                  "runAfter": {}
+                },
+                "Set_DeltaLinkSave_if_available": {
+                  "type": "If",
+                  "expression": {
+                    "and": [
+                      {
+                        "equals": [
+                          "@empty(body('Request_Drive_Changes')?['@odata.deltaLink'])",
+                          "@false"
+                        ]
+                      }
+                    ]
+                  },
+                  "actions": {
+                    "Set_variable": {
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "DeltaLinkSave",
+                        "value": "@{body('Request_Drive_Changes')?['@odata.deltaLink']}"
+                      },
+                      "runAfter": {}
+                    }
+                  },
+                  "runAfter": {
+                    "Request_Drive_Changes": [
+                      "Succeeded"
+                    ]
+                  }
+                },
+                "Set_NextLink": {
+                  "type": "If",
+                  "expression": {
+                    "and": [
+                      {
+                        "equals": [
+                          "@empty(body('Request_Drive_Changes')?['@odata.nextLink'])",
+                          "@false"
+                        ]
+                      }
+                    ]
+                  },
+                  "actions": {
+                    "Set_Deltalink_to_NextLink": {
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "DeltaLink",
+                        "value": "@{body('Request_Drive_Changes')?['@odata.nextLink']}"
+                      },
+                      "runAfter": {}
+                    }
+                  },
+                  "runAfter": {
+                    "For_each": [
+                      "Succeeded"
+                    ]
+                  },
+                  "else": {
+                    "actions": {
+                      "Set_DeltaLink_to_empty_none": {
+                        "type": "SetVariable",
+                        "inputs": {
+                          "name": "DeltaLink",
+                          "value": "none"
+                        },
+                        "runAfter": {}
+                      }
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "DeltaLink": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Initialize_DeltaLinkSave": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "DeltaLinkSave",
+                    "type": "string",
+                    "value": "\"\""
+                  }
+                ]
+              },
+              "runAfter": {
+                "ClientSecret": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Metadata": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "FileMetadata",
+                    "type": "array"
+                  }
+                ]
+              },
+              "runAfter": {
+                "BackUpSite": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "Replace_Entity": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['azuretables']['connectionId']"
+                  }
+                },
+                "method": "put",
+                "body": {
+                  "DeltaLink": "@{variables('DeltaLinkSave')}",
+                  "PartitionKey": "Sites",
+                  "RowKey": "@{body('BackUpSite')?['RowKey']}",
+                  "SiteUrl": "@{body('BackUpSite')?['SiteUrl']}",
+                  "odata.etag": "@{body('BackUpSite')?['odata.etag']}"
+                },
+                "headers": {
+                  "If-Match": "*"
+                },
+                "path": "/Tables/@{encodeURIComponent('sharepointsites')}/entities/etag(PartitionKey='@{encodeURIComponent('Sites')}',RowKey='@{encodeURIComponent(body('BackUpSite')?['RowKey'])}')"
+              },
+              "runAfter": {
+                "Create_metadata_file": [
+                  "Succeeded"
+                ]
+              }
+            },
+            "TenantID": {
+              "type": "InitializeVariable",
+              "inputs": {
+                "variables": [
+                  {
+                    "name": "TenantID",
+                    "type": "string",
+                    "value": "TenantID"
+                  }
+                ]
+              },
+              "runAfter": {
+                "Metadata": [
+                  "Succeeded"
+                ]
+              }
+            }
+          },
+          "parameters": {
+            "$connections": {
+              "defaultValue": {},
+              "type": "Object"
+            }
+          },
+          "triggers": {
+            "When_there_are_messages_in_a_queue": {
+              "type": "ApiConnection",
+              "inputs": {
+                "host": {
+                  "connection": {
+                    "name": "@parameters('$connections')['azurequeues']['connectionId']"
+                  }
+                },
+                "method": "get",
+                "path": "/@{encodeURIComponent('sharepointazurebackup')}/message_trigger"
+              },
+              "recurrence": {
+                "frequency": "Hour",
+                "interval": 1
+              },
+              "splitOn": "@triggerBody()?['QueueMessagesList']?['QueueMessage']"
+            }
+          },
+          "contentVersion": "1.0.0.0",
+          "outputs": {}
+        },
+        "parameters": {
+          "$connections": {
+            "value": {
+              "azureblob_1": {
+                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', 'westeurope', '/managedApis/', 'azureblob')]",
+                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('azureblob_1_Connection_Name'))]",
+                "connectionName": "[parameters('azureblob_1_Connection_Name')]"
+              },
+              "azurequeues": {
+                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', 'westeurope', '/managedApis/', 'azurequeues')]",
+                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('azurequeues_1_Connection_Name'))]",
+                "connectionName": "[parameters('azurequeues_1_Connection_Name')]"
+              },
+              "azuretables": {
+                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', 'westeurope', '/managedApis/', 'azuretables')]",
+                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('azuretables_1_Connection_Name'))]",
+                "connectionName": "[parameters('azuretables_1_Connection_Name')]"
+              }
+            }
+          }
+        }
+      },
+      "name": "[parameters('LogicAppName')]",
+      "type": "Microsoft.Logic/workflows",
+      "location": "[parameters('LogicAppLocation')]",
+      "apiVersion": "2016-06-01",
+      "tags": {
+        "displayName": "LogicApp"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/connections', parameters('azureblob_1_Connection_Name'))]",
+        "[resourceId('Microsoft.Web/connections', parameters('azurequeues_1_Connection_Name'))]",
+        "[resourceId('Microsoft.Web/connections', parameters('azuretables_1_Connection_Name'))]"
+      ]
+    },
+    {
+      "type": "MICROSOFT.WEB/CONNECTIONS",
+      "apiVersion": "2018-07-01-preview",
+      "name": "[parameters('azuretables_1_Connection_Name')]",
+      "location": "westeurope",
+      "properties": {
+        "api": {
+          "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', 'westeurope', '/managedApis/', 'azuretables')]"
+        },
+        "displayName": "[parameters('azuretables_1_Connection_DisplayName')]",
+        "parameterValues": {
+          "storageaccount": "[parameters('azuretables_1_storageaccount')]",
+          "sharedkey": "[parameters('azuretables_1_sharedkey')]"
+        }
+      }
+    },
+    {
+      "type": "MICROSOFT.WEB/CONNECTIONS",
+      "apiVersion": "2018-07-01-preview",
+      "name": "[parameters('azurequeues_1_Connection_Name')]",
+      "location": "westeurope",
+      "properties": {
+        "api": {
+          "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', 'westeurope', '/managedApis/', 'azurequeues')]"
+        },
+        "displayName": "[parameters('azurequeues_1_Connection_DisplayName')]",
+        "parameterValues": {
+          "storageaccount": "[parameters('azurequeues_1_storageaccount')]",
+          "sharedkey": "[parameters('azurequeues_1_sharedkey')]"
+        }
+      }
+    },
+    {
+      "type": "MICROSOFT.WEB/CONNECTIONS",
+      "apiVersion": "2018-07-01-preview",
+      "name": "[parameters('azureblob_1_Connection_Name')]",
+      "location": "westeurope",
+      "properties": {
+        "api": {
+          "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', 'westeurope', '/managedApis/', 'azureblob')]"
+        },
+        "displayName": "[parameters('azureblob_1_Connection_DisplayName')]",
+        "parameterValues": {
+          "accountName": "[parameters('azureblob_1_accountName')]",
+          "accessKey": "[parameters('azureblob_1_accessKey')]"
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}
