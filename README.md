@@ -1,7 +1,9 @@
 # Simple SharePoint to Azure Backup
-A low-code solution to let end-users backup SharePoint content to Azure storage
+A low-code solution to let end-users backup SharePoint content to Azure storage using a SharePoint site desing.
 
-Simple Azure serverless SharePoint backup uses a logic app and storage account to backup SharePoint files. The solution only backups files that are stored in the Shared Documents library of your site (which is ideal if you use Teams). The solution uses the 'Delta' method of the Graph files api. Only newly added or edited files are updated (for more information see: https://docs.microsoft.com/en-us/graph/api/driveitem-delta?view=graph-rest-1.0&tabs=http).
+<img src="https://github.com/the-qoders-community/SharePoint-to-Azure-Backup/blob/master/Images/architecture.png" width="600" >
+
+Simple SharePoint to Azure Backup uses a SharePoint site design, 3 logic apps and storage account to let end-users backup SharePoint files. The solution only backups files that are stored in the Shared Documents library of your site (which is ideal if you use Teams). The solution uses the 'Delta' method of the Graph files api. Only newly added or edited files are updated (for more information see: https://docs.microsoft.com/en-us/graph/api/driveitem-delta?view=graph-rest-1.0&tabs=http).
 
 # Installation
 
