@@ -47,7 +47,9 @@ Edit your newly created Logic App. Make sure that variables 'TenantID', 'ClientI
 
 # Add versioning
 
+Adding versioning to the solution is as simple as adding a extra 'date' folder to the path in the blob storage (which makes sure that the blobs that were stored the previous day are not overwritten)
 
+<img src="https://github.com/the-qoders-community/SharePoint-to-Azure-Backup/blob/master/Images/versioning.png" width="600" >
 
 # Performance
 
@@ -55,9 +57,13 @@ We tested the performance of the solution with a back-up of a SharePoint site wi
 
 By default the number of concurrent Logic App workflow instances is unlimited. In other words: all your sites will be backed up at the same time. For more information see: https://docs.microsoft.com/en-us/azure/logic-apps/logic-apps-workflow-actions-triggers#change-trigger-concurrency
 
-# Some ideas on doing a 'Restore' on a back-up site in Azure Blob
+# Some thoughts on doing a 'Restore'
 
-----
+At the beginning of 2020 Microsoft has purchased the migration tool 'mover.io'. Mover enables you to backup your sites to Azure Blob storage. But at moment of writing it does not support using the API (while the tool does have an API) and it does not support metadata (who created te file, when and who changed the file, when).
+
+This solution saves basic metadata of all files to a json file at the root of the site collection related folder in the blob. The filename of the metadata file is 'metadata.json'. This file also contains the filepath.
+
+A way of restoring a back-up as an administrator is for example to use 'mover.io' to restore the files from Azure storage back to SharePoint online, followed by some post-processing that adds the metadata to the files using the 'metadata.json' file. You could temporarely disable versioning of the document library to prevent that an new version is created while setting the metadata. A future post will dive a little deeper into this.  
 
 
 
