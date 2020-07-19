@@ -41,9 +41,9 @@ Finnaly import the third logic app. This logic app will pick up messages from th
 
 In step 7 use the storage account and key1 or key2 that you have created and saved previously.
 
+<img src="https://github.com/the-qoders-community/SharePoint-to-Azure-Backup/blob/master/Images/QodersSharePointBackup_settings.PNG" width="600" >
 
-
-Finally edit you newly created Logic App. Make sure that variables 'TenantID', 'ClientID' and 'ClientSecret' are set with the values from your AAD application. Also make sure that the 'GetRows' action references your storage table and the 'Create blob' action (rather deep in the Logic App!) Folder path is set to your blob storage.
+Edit your newly created Logic App. Make sure that variables 'TenantID', 'ClientID' and 'ClientSecret' are set with the values from your AAD application. Also make sure that the 'GetRows' action references your storage table and the 'Create blob' action (rather deep in the Logic App!) Folder path is set to your blob storage.
 
 # Add versioning
 
