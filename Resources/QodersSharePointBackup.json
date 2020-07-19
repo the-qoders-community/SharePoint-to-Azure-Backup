@@ -2,27 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "azuretables_1_Connection_Name": {
-      "type": "string",
-      "defaultValue": "azuretables"
-    },
-    "azuretables_1_Connection_DisplayName": {
-      "type": "string",
-      "defaultValue": "qodersfiles"
-    },
-    "azuretables_1_storageaccount": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of your storage account"
-      },
-      "defaultValue": "qodersfiles"
-    },
-    "azuretables_1_sharedkey": {
-      "type": "securestring",
-      "metadata": {
-        "description": "The shared storage key of your storage account"
-      }
-    },
     "azurequeues_1_Connection_Name": {
       "type": "string",
       "defaultValue": "azurequeues"
@@ -39,6 +18,27 @@
       "defaultValue": "qodersfiles"
     },
     "azurequeues_1_sharedkey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "The shared storage key of your storage account"
+      }
+    },
+    "azuretables_1_Connection_Name": {
+      "type": "string",
+      "defaultValue": "azuretables"
+    },
+    "azuretables_1_Connection_DisplayName": {
+      "type": "string",
+      "defaultValue": "qodersfiles"
+    },
+    "azuretables_1_storageaccount": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of your storage account"
+      },
+      "defaultValue": "qodersfiles"
+    },
+    "azuretables_1_sharedkey": {
       "type": "securestring",
       "metadata": {
         "description": "The shared storage key of your storage account"
@@ -207,7 +207,7 @@
                   }
                 },
                 "method": "post",
-                "body": "{ @{body('AllFileMetadata')} }",
+                "body": "{ \"metadata\":[@{body('AllFileMetadata')}] }",
                 "path": "/datasets/default/files",
                 "queries": {
                   "folderPath": "/sharepointfiles",
@@ -640,22 +640,6 @@
     {
       "type": "MICROSOFT.WEB/CONNECTIONS",
       "apiVersion": "2018-07-01-preview",
-      "name": "[parameters('azuretables_1_Connection_Name')]",
-      "location": "westeurope",
-      "properties": {
-        "api": {
-          "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', 'westeurope', '/managedApis/', 'azuretables')]"
-        },
-        "displayName": "[parameters('azuretables_1_Connection_DisplayName')]",
-        "parameterValues": {
-          "storageaccount": "[parameters('azuretables_1_storageaccount')]",
-          "sharedkey": "[parameters('azuretables_1_sharedkey')]"
-        }
-      }
-    },
-    {
-      "type": "MICROSOFT.WEB/CONNECTIONS",
-      "apiVersion": "2018-07-01-preview",
       "name": "[parameters('azurequeues_1_Connection_Name')]",
       "location": "westeurope",
       "properties": {
@@ -666,6 +650,22 @@
         "parameterValues": {
           "storageaccount": "[parameters('azurequeues_1_storageaccount')]",
           "sharedkey": "[parameters('azurequeues_1_sharedkey')]"
+        }
+      }
+    },
+    {
+      "type": "MICROSOFT.WEB/CONNECTIONS",
+      "apiVersion": "2018-07-01-preview",
+      "name": "[parameters('azuretables_1_Connection_Name')]",
+      "location": "westeurope",
+      "properties": {
+        "api": {
+          "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', 'westeurope', '/managedApis/', 'azuretables')]"
+        },
+        "displayName": "[parameters('azuretables_1_Connection_DisplayName')]",
+        "parameterValues": {
+          "storageaccount": "[parameters('azuretables_1_storageaccount')]",
+          "sharedkey": "[parameters('azuretables_1_sharedkey')]"
         }
       }
     },
