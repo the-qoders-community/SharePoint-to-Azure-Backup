@@ -1,5 +1,5 @@
 # Simple SharePoint to Azure Backup
-A low-code solution to let end-users backup SharePoint content to Azure storage using a SharePoint site desing.
+A low-code solution to let end-users backup SharePoint content to Azure storage using a SharePoint site design.
 
 <img src="https://github.com/the-qoders-community/SharePoint-to-Azure-Backup/blob/master/Images/architecture.png" width="600" >
 
@@ -39,7 +39,7 @@ Now import the second logic app. It is named 'QodersScheduledBus.json'. Just fol
 
 <img src="https://github.com/the-qoders-community/SharePoint-to-Azure-Backup/blob/master/Images/QodersScheduledBus.PNG" width="600" >
 
-Finnaly import the third logic app. This logic app will pick up messages from the queue and backup the files from SharePoint to Azure. Again follow step 1-9. At step 4 you should upload 'QodersSharePointBackup.json'.
+Finally import the third logic app. This logic app will pick up messages from the queue and backup the files from SharePoint to Azure. Again follow step 1-9. At step 4 you should upload 'QodersSharePointBackup.json'.
 
 In step 7 use the storage account and key1 or key2 that you have created and saved previously.
 
@@ -65,7 +65,7 @@ At the end of 2019 Microsoft has purchased the migration tool 'mover.io'. Mover 
 
 This solution saves basic metadata of all files to a json file at the root of the site collection related folder in the blob. The filename of the metadata file is 'metadata.json'. This file also contains the filepath.
 
-A way of restoring a back-up as an administrator is for example to use 'mover.io' to restore the files from Azure storage back to SharePoint online, followed by some post-processing that adds the metadata to the files using the 'metadata.json' file. You could temporarely disable versioning of the document library to prevent that an new version is created while setting the metadata. A future post will dive a little deeper into this.  
+A way of restoring a back-up as an administrator is for example to use 'mover.io' to restore the files from Azure storage back to SharePoint online, followed by some post-processing that adds the metadata to the files using the 'metadata.json' file. You could temporarely disable versioning of the document library to prevent that a new version is created while setting the metadata. A future post will dive a little deeper into this.  
 
 
 
