@@ -45,11 +45,15 @@ In step 7 use the storage account and key1 or key2 that you have created and sav
 
 Finally edit you newly created Logic App. Make sure that variables 'TenantID', 'ClientID' and 'ClientSecret' are set with the values from your AAD application. Also make sure that the 'GetRows' action references your storage table and the 'Create blob' action (rather deep in the Logic App!) Folder path is set to your blob storage.
 
+# Add versioning
+
+
+
 # Performance
 
 We tested the performance of the solution with a back-up of a SharePoint site with 2 GB of data spread over 4500 Office documents (each about 500 kb in size). It takes about 17 minutes to back-up the site. Extrapolated this would give you a performance of about 6.5 GB per hour, per workflow instance (or site collection if you like).
 
-By default the number of concurrent Logic App workflow instances is unlimited. For more information see: https://docs.microsoft.com/en-us/azure/logic-apps/logic-apps-workflow-actions-triggers#change-trigger-concurrency
+By default the number of concurrent Logic App workflow instances is unlimited. In other words: all your sites will be backed up at the same time. For more information see: https://docs.microsoft.com/en-us/azure/logic-apps/logic-apps-workflow-actions-triggers#change-trigger-concurrency
 
 # Some ideas on doing a 'Restore' on a back-up site in Azure Blob
 
