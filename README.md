@@ -59,7 +59,7 @@ By default the number of concurrent Logic App workflow instances is unlimited. I
 
 # Some thoughts on doing a 'Restore'
 
-At the beginning of 2020 Microsoft has purchased the migration tool 'mover.io'. Mover enables you to backup your sites to Azure Blob storage. But at moment of writing it does not support using the API (while the tool does have an API) and it does not support metadata (who created te file, when and who changed the file, when).
+At the end of 2019 Microsoft has purchased the migration tool 'mover.io'. Mover enables you to backup your sites to Azure Blob storage. But at moment of writing it does not support using the API (while the tool does have an API) and it does not support metadata (who created te file, when and who changed the file, when).
 
 This solution saves basic metadata of all files to a json file at the root of the site collection related folder in the blob. The filename of the metadata file is 'metadata.json'. This file also contains the filepath.
 
